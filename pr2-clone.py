@@ -18,7 +18,7 @@ def rand_mac():
         )
 
 for vm in ["base","pi","c1","c2"]:
-    error=subprocess.call(["virsh", "dumpxml", vm, ">", "/tmp/", vm+".xml"])
+    error=subprocess.call(["virsh", "dumpxml", vm, " > ", "/tmp/", vm+".xml"])
     if not error:
         #error dumping the xml
         print (error)
@@ -31,10 +31,10 @@ for vm in ["base","pi","c1","c2"]:
             if child.tag == "devices":
                 #trying to find the specific interface that we care about
                 for device in child:
-                    if device.tag == "interface" && device.attrib == "{ 'type': 'bridge'}":
+                    if device.tag == "interface" and device.attrib == "{ 'type': 'bridge'}":
                         #replace mac address with randomly generated one
                         for device_info in device:
-                            if device_info.tag == "mac" && device.attrib == "{'address': ''}": #not too sure about how to 'find' the mac info, since each mac in the file is unique
+                            if device_info.tag == "mac" and device.attrib == "{'address': ''}": #not too sure about how to 'find' the mac info, since each mac in the file is unique
                                 #loop through the field, replace the mac in there with new one
                                 for i in vm_xml('mac'):
                                     print("Found a MAC address: ")
