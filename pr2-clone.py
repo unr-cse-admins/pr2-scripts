@@ -17,14 +17,15 @@ def rand_mac():
         random.randint(0, 255)
         )
 
-for vm in ["base","pi","c1","c2"]:
-    error=subprocess.call(["virsh", "dumpxml", vm, " > ", "/tmp/", vm+".xml"])
-    if not error:
-        #error dumping the xml
-        print (error)
-    else:
+# for vm in ["base","pi","c1","c2"]:
+#     error=subprocess.call(["virsh", "dumpxml", vm, " > ", "/tmp/", vm+".xml"])
+#     if not error:
+#         #error dumping the xml
+#         print (error)
+#     else:
         #start parsing the .xml
         #current issue: how do i into previous command without repeating if i cant stdout the error var in order to call the ET parser
+        vm="base.xml"
         vm_xml=ET.parse(vm+".xml").getroot()
         for child in vm_xml:
             #trying to find the <devices> section, which contains our interfaces that we care about
