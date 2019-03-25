@@ -37,7 +37,8 @@ for vm in ["base","pi","c1","c2"]:
                             if device_info.tag == "mac" && device.attrib == "{'address': ''}": #not too sure about how to 'find' the mac info, since each mac in the file is unique
                                 #loop through the field, replace the mac in there with new one
                                 for i in vm_xml('mac'):
-                                    i.text=rand_mac()
+                                    print("Found a MAC address: ")
+                                    # i.text=rand_mac()
                                     #maybe an issue here? there might not be any quotes around this which we'll need in the end, maybe append the quotes around it? force the quotes in the function?
 
 
