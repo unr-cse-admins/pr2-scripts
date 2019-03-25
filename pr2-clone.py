@@ -25,21 +25,21 @@ def rand_mac():
 #     else:
         #start parsing the .xml
         #current issue: how do i into previous command without repeating if i cant stdout the error var in order to call the ET parser
-        vm="base.xml"
-        vm_xml=ET.parse(vm+".xml").getroot()
-        for child in vm_xml:
-            #trying to find the <devices> section, which contains our interfaces that we care about
-            if child.tag == "devices":
-                #trying to find the specific interface that we care about
-                for device in child:
-                    if device.tag == "interface" and device.attrib == "{ 'type': 'bridge'}":
-                        #replace mac address with randomly generated one
-                        for device_info in device:
-                            if device_info.tag == "mac" and device.attrib == "{'address': ''}": #not too sure about how to 'find' the mac info, since each mac in the file is unique
-                                #loop through the field, replace the mac in there with new one
-                                for i in vm_xml('mac'):
-                                    print("Found a MAC address: ")
-                                    # i.text=rand_mac()
+vm="base"
+vm_xml=ET.parse(vm+".xml").getroot()
+for child in vm_xml:
+    #trying to find the <devices> section, which contains our interfaces that we care about
+    if child.tag == "devices":
+        #trying to find the specific interface that we care about
+        for device in child:
+            if device.tag == "interface" and device.attrib == "{ 'type': 'bridge'}":
+                #replace mac address with randomly generated one
+                for device_info in device:
+                    if device_info.tag == "mac" and device.attrib == "{'address': ''}": #not too sure about how to 'find' the mac info, since each mac in the file is unique
+                        #loop through the field, replace the mac in there with new one
+                        for i in vm_xml('mac'):
+                            print("Found a MAC address: ")
+                            # i.text=rand_mac()
                                     #maybe an issue here? there might not be any quotes around this which we'll need in the end, maybe append the quotes around it? force the quotes in the function?
 
 
