@@ -19,38 +19,19 @@ def rand_mac():
         random.randint(0, 255)
         )
 
-# for vm in ["base","pi","c1","c2"]:
-#     error=subprocess.call(["virsh", "dumpxml", vm, " > ", "/tmp/", vm+".xml"])
-#     if not error:
-#         #error dumping the xml
-#         print (error)
-#     else:
-        #start parsing the .xml
-        #current issue: how do i into previous command without repeating if i cant stdout the error var in order to call the ET parser
 vms = ("base", "pi", "c1", "c2")
 for vm in vms:
+    #generating new fields for renaming in the .xml
+    vm_name = prefix + "-" + vm
+    vm_drive = "/var/lib/libvirt/images/" + prefix + "-" + vm + ".qcow2" #before doing this, still need to do system call to make new drive
+    vm_uuid = uuid.uuid4()
+    vm_bridge = prefix + "-br"
+    mac_int = rand_mac()
+    if vm is "base" or vm is "pi":
+        mac_ex = rand_mac()
+        print(vm_name, vm_drive, vm_uuid, mac_int, mac_ex, vm_bridge)
+    else:
+        print(vm_name, vm_drive, vm_uuid, mac_int, vm_bridge)
 
     vm_xml = ET.parse("vms/" + vm + ".xml").getroot()
-    vm_xml.find('uuid').text = uuid.uuid4()# uuidgen
-# for child in vm_xml:
-#     print(child.attrib)
-    #trying to find the <devices> section, which contains our interfaces that we care about
-    # if child.tag == "devices":
-    #     #trying to find the specific interface that we care about
-    #     for device in child:
-    #         if device.tag == "interface" and device.attrib == "{ 'type': 'bridge'}":
-    #             #replace mac address with randomly generated one
-    #             for device_info in device:
-    #                 if device_info.tag == "mac" and device.attrib == "{'address': ''}": #not too sure about how to 'find' the mac info, since each mac in the file is unique
-    #                     #loop through the field, replace the mac in there with new one
-    #                     for i in vm_xml('mac'):
-    #                         print("Found a MAC address: ")
-    #                         # i.text=rand_mac()
-    #                                 #maybe an issue here? there might not be any quotes around this which we'll need in the end, maybe append the quotes around it? force the quotes in the function?
-
-
-        #writing changes to our .xml file backup, not sure if we send this to a different .xml file
-        # vm_xml.write("/tmp/"+vm+".xml")
-
-
-        #in theory, mac addresses should be replaced at this point, so afterward we have to create a new virtual disk, anything else?
+    vm_xml.find('uuid').text = vm_uuid #uuidgen
