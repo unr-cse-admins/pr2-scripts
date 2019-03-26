@@ -1,6 +1,6 @@
 <domain type='kvm'>
-  <name>c1</name>
-  <uuid>526f793f-5d51-4599-a4ac-90b88d59824f</uuid>
+  <name>$$$PREFIX$$$-c1</name>
+  <uuid>$$$C1_UUID$$$</uuid>
   <memory unit='KiB'>2097152</memory>
   <currentMemory unit='KiB'>2097152</currentMemory>
   <vcpu placement='static'>1</vcpu>
@@ -32,7 +32,7 @@
     <emulator>/usr/bin/kvm-spice</emulator>
     <disk type='file' device='disk'>
       <driver name='qemu' type='qcow2'/>
-      <source file='/var/lib/libvirt/images/c1.qcow2'/>
+      <source file='/var/lib/libvirt/images/$$$PREFIX$$$-c1.qcow2'/>
       <target dev='vda' bus='virtio'/>
       <address type='pci' domain='0x0000' bus='0x00' slot='0x07' function='0x0'/>
     </disk>
@@ -65,8 +65,8 @@
       <address type='pci' domain='0x0000' bus='0x00' slot='0x06' function='0x0'/>
     </controller>
     <interface type='bridge'>
-      <mac address='52:54:00:11:b4:1b'/>
-      <source bridge='br0'/>
+      <mac address='$$$C1_MAC_INTERNAL$$$'/>
+      <source bridge='$$$PREFIX$$$-br'/>
       <virtualport type='openvswitch'>
         <parameters interfaceid='446b33ea-98b9-4920-a095-0844add676a4'/>
       </virtualport>
