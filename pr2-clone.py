@@ -7,9 +7,18 @@ import uuid
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("prefix")
+parser.add_argument("action", type = str, choices = ["create", "remove"])
+parser.add_argument("prefix", help = "prefix of the VMs (one word description)")
 args = parser.parse_args()
-print(args.prefix)
+
+def main():
+    if args.action == "create":
+        return create()
+    elif args.action == "remove":
+        return remove()
+    else:
+        return 1
+
 
 #credits to https://gist.github.com/pklaus/9638536#gistcomment-2013303, I guess python doesn't have a random MAC generator so here's our next best option
 def rand_mac():
@@ -22,31 +31,34 @@ def rand_mac():
         random.randint(0, 255)
     )
 
-#try to think about arg parsing
+def create():
+    print("Creating...")
+    vm_bridge = "pr2-" + args.prefix + "-br"
+    subprocess.run(["ovs-vsctl", "add-br", vm_bridge])
+    #create new ovs bridge `ovs-vsctl`
 
-vm_bridge = "pr2-" + args.prefix + "-br"
-subprocess.run(["ovs-vsctl", "add-br", vm_bridge])
-#create new ovs bridge `ovs-vsctl`
-
-vms = ("base", "pi", "c1", "c2")
-for vm in vms:
+    vms = ("base", "pi", "c1", "c2")
+    for vm in vms:
     #generate new drive `truncate`
     #generating new fields for renaming in the .xml
 
-    vm_name = args.prefix + "-" + vm
-    vm_drive = "/var/lib/libvirt/images/" + args.prefix + "-" + vm + ".qcow2" #before doing this, still need to do system call to make new drive
-    vm_uuid = uuid.uuid4()
-    mac_int = rand_mac()
-    if vm is "base" or vm is "pi":
-        mac_ex = rand_mac()
-        print(vm_name, vm_drive, vm_uuid, mac_int, mac_ex, vm_bridge)
-    else:
-        print(vm_name, vm_drive, vm_uuid, mac_int, vm_bridge)
+        vm_name = args.prefix + "-" + vm
+        vm_drive = "/var/lib/libvirt/images/" + args.prefix + "-" + vm + ".qcow2" #before doing this, still need to do system call to make new drive
+        vm_uuid = uuid.uuid4()
+        mac_int = rand_mac()
+        if vm is "base" or vm is "pi":
+            mac_ex = rand_mac()
+            print(vm_name, vm_drive, vm_uuid, mac_int, mac_ex, vm_bridge)
+        else:
+            print(vm_name, vm_drive, vm_uuid, mac_int, vm_bridge)
 
-    #done with the uuid
-    vm_xml = ET.parse("vms/" + vm + ".xml").getroot()
-    vm_xml.find('uuid').text = vm_uuid #uuidgen
+        #done with the uuid
+        vm_xml = ET.parse("vms/" + vm + ".xml").getroot()
+        vm_xml.find('uuid').text = vm_uuid #uuidgen
+    #start parsing and replacing stuff, write it to /tmp/<name>.xml, remove when done
 
+def remove():
+    print("Remove: To-Do")
+    return 0
 
-
-#start parsing and replacing stuff, write it to /tmp/<name>.xml, remove when done
+main()
