@@ -26,23 +26,26 @@ subprocess.run(["ovs-vsctl", "add-br", vm_bridge])
 
 vms = ("base", "pi", "c1", "c2")
 for vm in vms:
-    #generate new drive `truncate`
-    #generating new fields for renaming in the .xml
 
+    #generating new fields for renaming in the .xml
     vm_name = prefix + "-" + vm
-    vm_drive = "/var/lib/libvirt/images/" + prefix + "-" + vm + ".qcow2" #before doing this, still need to do system call to make new drive
+    vm_drive = "/var/lib/libvirt/images/" + vm_name + ".qcow2" #before messing with this, still need to do system call to make new drive
     vm_uuid = uuid.uuid4()
     mac_int = rand_mac()
     if vm is "base" or vm is "pi":
         mac_ex = rand_mac()
-        print(vm_name, vm_drive, vm_uuid, mac_int, mac_ex, vm_bridge)
-    else:
-        print(vm_name, vm_drive, vm_uuid, mac_int, vm_bridge)
 
-    #done with the uuid
+    #creating new virtual drive
+    subprocess.run(["truncate", "-s", "15G", "/tmp/" + vm_name + ".img"])
+
+    #done with replacing uuid
     vm_xml = ET.parse("vms/" + vm + ".xml").getroot()
     vm_xml.find('uuid').text = vm_uuid #uuidgen
 
+    #starting to replace mac address
+    print(vm_xml.find('devices').text) #do i have to do wonky stuff to get the specific device? i.e. vm_xml.find('devices').find(`interface`).find('mac')?
 
+    #after parsing, write changes to /tmp/<vm_name>.xml
 
-#start parsing and replacing stuff, write it to /tmp/<name>.xml, remove when done
+    #after .xml is updated, create new vm:
+    # subprocess.run(["virsh", "create", "/tmp/" + vm_name + ".xml"])
