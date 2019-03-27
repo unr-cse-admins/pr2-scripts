@@ -3,8 +3,12 @@ import sys
 import random
 import subprocess
 import xml.etree.ElementTree as ET
+from xml.dom import minidom
 import uuid
 import argparse
+import os
+import libvirt
+import inspect
 
 parser = argparse.ArgumentParser()
 parser.add_argument("action", type = str, choices = ["create", "remove"])
@@ -58,7 +62,32 @@ def create():
     #start parsing and replacing stuff, write it to /tmp/<name>.xml, remove when done
 
 def remove():
-    print("Remove: To-Do")
+    internal_bridge = "pr2-" + args.prefix + "-br"
+    vms = []
+    for file in os.listdir("vms"):
+        vms.append(args.prefix + "-" + os.path.splitext(file)[0])
+    conn = libvirt.open("qemu:///system")
+    for vm in vms:
+        try:
+            domain = conn.lookupByName(vm)
+        except:
+            continue
+        try:
+            domain.destroy() # shutdown VM if it is running
+        except:
+            pass
+        xml = ET.fromstring(domain.XMLDesc(0))
+        disks = xml.findall("devices/disk")
+        for disk in disks:
+            if disk.attrib["device"] == "disk":
+                disk_image = disk.find("source").attrib["file"]
+                try:
+                    os.remove(disk_image)
+                except OSError as e:
+                    print("Removing", disk_image+":", e.strerror, file=sys.stderr)
+                    pass
+        domain.undefine()
+    conn.close()
     return 0
 
 main()
