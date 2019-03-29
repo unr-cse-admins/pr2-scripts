@@ -88,6 +88,7 @@ def remove():
                     pass
         domain.undefine()
     conn.close()
+    subprocess.run(['ovs-vsctl', 'del-br', internal_bridge])
     return 0
 
 main()
