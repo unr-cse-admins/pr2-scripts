@@ -88,7 +88,10 @@ def remove():
                     pass
         domain.undefine()
     conn.close()
-    subprocess.run(['ovs-vsctl', 'del-br', internal_bridge])
+    try:
+        result = subprocess.run(['ovs-vsctl', 'del-br', internal_bridge])
+    except:
+        print(result.returncode, result.stderr, file=sys.stderr)
     return 0
 
 main()
