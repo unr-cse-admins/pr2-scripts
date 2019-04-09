@@ -9,6 +9,7 @@ import argparse
 import os
 import libvirt
 import inspect
+import re
 
 parser = argparse.ArgumentParser()
 parser.add_argument("action", type = str, choices = ["create", "remove"])
@@ -43,23 +44,53 @@ def create():
 
     vms = ("base", "pi", "c1", "c2")
     for vm in vms:
-    #generate new drive `truncate`
-    #generating new fields for renaming in the .xml
 
+        #generating new fields for renaming in the .xml
         vm_name = args.prefix + "-" + vm
         vm_drive = "/var/lib/libvirt/images/" + args.prefix + "-" + vm + ".qcow2" #before doing this, still need to do system call to make new drive
         vm_uuid = uuid.uuid4()
+        vm_br = args.prefix + "-br"
         mac_int = rand_mac()
         if vm is "base" or vm is "pi":
             mac_ex = rand_mac()
-            print(vm_name, vm_drive, vm_uuid, mac_int, mac_ex, vm_bridge)
-        else:
-            print(vm_name, vm_drive, vm_uuid, mac_int, vm_bridge)
 
         #done with the uuid
+        print("Generating new UUID for: " + vm_name)
         vm_xml = ET.parse("vms/" + vm + ".xml").getroot()
-        vm_xml.find('uuid').text = vm_uuid #uuidgen
-    #start parsing and replacing stuff, write it to /tmp/<name>.xml, remove when done
+        vm_xml.find('uuid').text = vm_uuid
+
+        #generate new drive using `truncate`
+        print("Creating a virtual drive for: " + vm_name)
+        file = open(vm_drive, "w")
+        file.truncate(16106127360)
+        file.close()
+
+        #replacing drive name
+        for device in vm_xml.findall("devices/disk"):
+            if device.attrib["device"] == "disk":
+                device.find("source").attrib["file"] = vm_drive
+
+        #replacing mac addresses for bridges + updating bridge names, $$$PREFIX$$$-br for internal, "external-br" for external bridges
+        for interface in vm_xml.findall("devices/interface"):
+            if interface.find("mac").attrib["address"] == "$$$" + (vm).upper() + "_MAC_INTERNAL$$$":
+                # print("MAC Address before " + vm_br + ": $$$" + (vm).upper() + "_MAC_INTERNAL$$$")
+                interface.find("mac").attrib["address"] = mac_int
+                interface.find("source").attrib["bridge"] = vm_br
+                # print("MAC Address of " + interface.find("source").attrib["bridge"] + " after: " + interface.find("mac").attrib["address"])
+            elif interface.find("mac").attrib["address"] == "$$$" + (vm).upper() + "_MAC_EXTERNAL$$$":
+                # print("MAC Address before " + vm_br + ": $$$" + (vm).upper() + "_MAC_INTERNAL$$$")
+                interface.find("mac").attrib["address"] = mac_ex
+                interface.find("source").attrib["bridge"] = "external-br"
+                # print("MAC Address of " + interface.find("source").attrib["bridge"] + " after: " + interface.find("mac").attrib["address"])
+
+        #writing changes to new .xml file (having issues actually writing the string using tostring)
+        # final_xml = ET.tostring(vm_xml)
+        # input_file = open("/tmp/" + args.prefix + "-" + vm + ".xml" , "w")
+        # input_file.write(final_xml)
+        # input_file.close()
+
+        #we can also do system calls with our current tree to make the vms for us and then we can simply delete the xmls
+        #subprocess.run(["virsh", "create", vm_name + ".xml"])
 
 def remove():
     internal_bridge = "pr2-" + args.prefix + "-br"
