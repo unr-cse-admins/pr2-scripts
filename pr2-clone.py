@@ -57,7 +57,9 @@ def create():
         #done with the uuid
         print("Generating new UUID for: " + vm_name)
         vm_xml = ET.parse("vms/" + vm + ".xml").getroot()
+        # print("UUID Before: " + str(vm_xml.find('uuid').text))
         vm_xml.find('uuid').text = vm_uuid
+        # print("UUID After: " + str(vm_xml.find('uuid').text))
 
         #generate new drive using `truncate`
         print("Creating a virtual drive for: " + vm_name)
@@ -68,7 +70,9 @@ def create():
         #replacing drive name
         for device in vm_xml.findall("devices/disk"):
             if device.attrib["device"] == "disk":
+                # print("Old drive filepath: " + device.find("source").attrib["file"])
                 device.find("source").attrib["file"] = vm_drive
+                # print("New drive filepath: " + device.find("source").attrib["file"])
 
         #replacing mac addresses for bridges + updating bridge names, $$$PREFIX$$$-br for internal, "external-br" for external bridges
         for interface in vm_xml.findall("devices/interface"):
@@ -76,13 +80,16 @@ def create():
                 # print("MAC Address before " + vm_br + ": $$$" + (vm).upper() + "_MAC_INTERNAL$$$")
                 interface.find("mac").attrib["address"] = mac_int
                 interface.find("source").attrib["bridge"] = vm_br
+                print("Replacing mac address for " + vm_name + "'s bridge " + vm_br + " with: " + mac_int)
                 # print("MAC Address of " + interface.find("source").attrib["bridge"] + " after: " + interface.find("mac").attrib["address"])
             elif interface.find("mac").attrib["address"] == "$$$" + (vm).upper() + "_MAC_EXTERNAL$$$":
                 # print("MAC Address before " + vm_br + ": $$$" + (vm).upper() + "_MAC_INTERNAL$$$")
                 interface.find("mac").attrib["address"] = mac_ex
                 interface.find("source").attrib["bridge"] = "external-br"
+                print("Replacing mac address for " + vm_name + "'s bridge external-br with: " + mac_ex)
                 # print("MAC Address of " + interface.find("source").attrib["bridge"] + " after: " + interface.find("mac").attrib["address"])
 
+        print("Creating new VM: " + vm_name + "...\n")
         #writing changes to new .xml file (having issues actually writing the string using tostring)
         # final_xml = ET.tostring(vm_xml)
         # input_file = open("/tmp/" + args.prefix + "-" + vm + ".xml" , "w")
