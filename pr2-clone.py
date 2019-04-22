@@ -40,7 +40,7 @@ def create():
     vm_bridge = "pr2-" + args.prefix + "-br"
     subprocess.run(["ovs-vsctl", "add-br", vm_bridge])
     subprocess.run(["ovs-vsctl", "add-br", "external-br"])
-    
+
     vms = ("base", "pi", "c1", "c2")
     for vm in vms:
 
@@ -48,7 +48,6 @@ def create():
         vm_name = args.prefix + "-" + vm
         vm_drive = "/var/lib/libvirt/images/" + args.prefix + "-" + vm + ".qcow2" #before doing this, still need to do system call to make new drive
         vm_uuid = uuid.uuid4()
-        vm_br = args.prefix + "-br"
         mac_int = rand_mac()
         if vm is "base" or vm is "pi":
             mac_ex = rand_mac()
@@ -82,13 +81,13 @@ def create():
         #replacing mac addresses for bridges + updating bridge names, $$$PREFIX$$$-br for internal, "external-br" for external bridges
         for interface in vm_xml.findall("devices/interface"):
             if interface.find("mac").attrib["address"] == "$$$" + (vm).upper() + "_MAC_INTERNAL$$$":
-                # print("MAC Address before " + vm_br + ": $$$" + (vm).upper() + "_MAC_INTERNAL$$$")
+                # print("MAC Address before " + vm_bridge + ": $$$" + (vm).upper() + "_MAC_INTERNAL$$$")
                 interface.find("mac").attrib["address"] = mac_int
-                interface.find("source").attrib["bridge"] = vm_br
-                print("Replacing mac address for " + vm_name + "'s bridge " + vm_br + " with: " + mac_int)
+                interface.find("source").attrib["bridge"] = vm_bridge
+                print("Replacing mac address for " + vm_name + "'s bridge " + vm_bridge + " with: " + mac_int)
                 # print("MAC Address of " + interface.find("source").attrib["bridge"] + " after: " + interface.find("mac").attrib["address"])
             elif interface.find("mac").attrib["address"] == "$$$" + (vm).upper() + "_MAC_EXTERNAL$$$":
-                # print("MAC Address before " + vm_br + ": $$$" + (vm).upper() + "_MAC_INTERNAL$$$")
+                # print("MAC Address before " + vm_bridge + ": $$$" + (vm).upper() + "_MAC_INTERNAL$$$")
                 interface.find("mac").attrib["address"] = mac_ex
                 interface.find("source").attrib["bridge"] = "external-br"
                 print("Replacing mac address for " + vm_name + "'s bridge external-br with: " + mac_ex)
