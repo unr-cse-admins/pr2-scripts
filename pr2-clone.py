@@ -27,8 +27,7 @@ def main():
 
 #credits to https://gist.github.com/pklaus/9638536#gistcomment-2013303, I guess python doesn't have a random MAC generator so here's our next best option
 def rand_mac():
-    return "%02x:%02x:%02x:%02x:%02x:%02x" % (
-        random.randint(0, 255),
+    return "10:%02x:%02x:%02x:%02x:%02x" % (
         random.randint(0, 255),
         random.randint(0, 255),
         random.randint(0, 255),
@@ -55,11 +54,17 @@ def create():
             mac_ex = rand_mac()
 
         #done with the uuid
+        vm_xml = ET.parse("vms/" + vm + ".xml")
+
+        print("Renaming VM for: " + vm_name)
+        # print("VM Name before: " + vm_xml.find('name').text)
+        vm_xml.find('name').text = str(vm_name)
+        # print("VM Name after: " + vm_xml.find('name').text)
+
         print("Generating new UUID for: " + vm_name)
-        vm_xml = ET.parse("vms/" + vm + ".xml").getroot()
-        # print("UUID Before: " + str(vm_xml.find('uuid').text))
-        vm_xml.find('uuid').text = vm_uuid
-        # print("UUID After: " + str(vm_xml.find('uuid').text))
+        # print("UUID Before: " + vm_xml.find('uuid').text)
+        vm_xml.find('uuid').text = str(vm_uuid)
+        # print("UUID After: " + vm_xml.find('uuid').text)
 
         #generate new drive using `truncate`
         print("Creating a virtual drive for: " + vm_name)
@@ -89,15 +94,9 @@ def create():
                 print("Replacing mac address for " + vm_name + "'s bridge external-br with: " + mac_ex)
                 # print("MAC Address of " + interface.find("source").attrib["bridge"] + " after: " + interface.find("mac").attrib["address"])
 
-        print("Creating new VM: " + vm_name + "...\n")
-        #writing changes to new .xml file (having issues actually writing the string using tostring)
-        # final_xml = ET.tostring(vm_xml)
-        # input_file = open("/tmp/" + args.prefix + "-" + vm + ".xml" , "w")
-        # input_file.write(final_xml)
-        # input_file.close()
-
-        #we can also do system calls with our current tree to make the vms for us and then we can simply delete the xmls
-        #subprocess.run(["virsh", "create", vm_name + ".xml"])
+        print("\nCreating new VM: " + vm_name + "...\n")
+        vm_xml.write("/tmp/" + vm_name + ".xml")
+        subprocess.run(["virsh", "create", "/tmp/" + vm_name + ".xml"])
 
 def remove():
     internal_bridge = "pr2-" + args.prefix + "-br"
