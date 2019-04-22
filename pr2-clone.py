@@ -94,6 +94,7 @@ def create():
                 print("Replacing mac address for " + vm_name + "'s bridge external-br with: " + mac_ex)
                 # print("MAC Address of " + interface.find("source").attrib["bridge"] + " after: " + interface.find("mac").attrib["address"])
 
+        #creating a new vm instance using the newly-edited .xml file
         print("\nCreating new VM: " + vm_name + "...\n")
         vm_xml.write("/tmp/" + vm_name + ".xml")
         subprocess.run(["virsh", "create", "/tmp/" + vm_name + ".xml"])
