@@ -36,11 +36,11 @@ def rand_mac():
     )
 
 def create():
-    print("Creating...")
+    print("Creating bridge...")
     vm_bridge = "pr2-" + args.prefix + "-br"
     subprocess.run(["ovs-vsctl", "add-br", vm_bridge])
-    #create new ovs bridge `ovs-vsctl`
-
+    subprocess.run(["ovs-vsctl", "add-br", "external-br"])
+    
     vms = ("base", "pi", "c1", "c2")
     for vm in vms:
 
