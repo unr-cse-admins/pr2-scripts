@@ -66,7 +66,7 @@ def create():
 
         #generate new drive using `truncate`
         print("Creating a virtual drive for: " + vm_name)
-        subprocess.run(["qemu-img", "create", "-f", "qcow2" "-o" "size=15G", vm_drive])
+        subprocess.run(["qemu-img", "create", "-f", "qcow2", "-o", "size=15G", vm_drive])
         print("Created virtual drive: " + vm_drive)
 
         #replacing drive name
