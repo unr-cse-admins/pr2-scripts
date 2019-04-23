@@ -43,13 +43,6 @@ def create():
 
     vms = ("base", "pi", "c1", "c2")
     for vm in vms:
-
-        #generate new drive using `truncate`
-        print("Creating a virtual drive for: " + vm_name)
-        file = open(vm_drive, "w")
-        file.truncate(16106127360)
-        file.close()
-
         #generating new fields for renaming in the .xml
         vm_name = args.prefix + "-" + vm
         vm_drive = "/var/lib/libvirt/images/" + args.prefix + "-" + vm + ".qcow2" #before doing this, still need to do system call to make new drive
@@ -70,6 +63,11 @@ def create():
         # print("UUID Before: " + vm_xml.find('uuid').text)
         vm_xml.find('uuid').text = str(vm_uuid)
         # print("UUID After: " + vm_xml.find('uuid').text)
+
+        #generate new drive using `truncate`
+        print("Creating a virtual drive for: " + vm_name)
+        subprocess.run(["qemu-img", "create", "-f", "qcow2" "-o" "size=15G", vm_drive])
+        print("Created virtual drive: " + vm_drive)
 
         #replacing drive name
         for device in vm_xml.findall("devices/disk"):
