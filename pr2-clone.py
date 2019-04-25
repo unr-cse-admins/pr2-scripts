@@ -94,7 +94,7 @@ def create():
         #creating a new vm instance using the newly-edited .xml file
         print("\nCreating new VM: " + vm_name + "...\n")
         vm_xml.write("/tmp/" + vm_name + ".xml")
-        subprocess.run(["virsh", "create", "/tmp/" + vm_name + ".xml"])
+        subprocess.run(["virsh", "define", "/tmp/" + vm_name + ".xml"])
 
 def remove():
     internal_bridge = "pr2-" + args.prefix + "-br"
